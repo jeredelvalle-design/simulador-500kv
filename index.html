@@ -1,1 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simulador 500 kV</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0e141a;color:#eee;font-family:Arial,sans-serif}
+header{background:#17212b;padding:18px}
+h1{font-size:19px;margin:0}
+main{max-width:700px;margin:auto;padding:12px}
+.card{background:#18232d;border:1px solid #30404d;border-radius:12px;padding:14px;margin-bottom:12px}
+svg{width:100%;background:#0b1015;border-radius:9px}
+h2{font-size:17px}
+.status{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #293640}
+.ok{color:#72e09a}.bad{color:#ff7373}.warn{color:#ffd166}
+button{width:100%;padding:15px;margin:5px 0;border:1px solid #496073;border-radius:9px;background:#263746;color:white;font-size:15px;text-align:left}
+button:active{background:#405c70}
+#log{background:#0b1015;padding:10px;border-radius:8px;font-size:13px;line-height:1.5}
+#result{margin-top:10px;padding:10px;border-radius:8px}
+</style>
+</head>
 
+<body>
+
+<header>
+<h1>SIMULADOR — INTERRUPTOR 500 kV</h1>
+<div>V1 · Búsqueda de fallas</div>
+</header>
+
+<main>
+
+<div class="card">
+<svg viewBox="0 0 800 360">
+<text x="400" y="30" fill="#ccc" text-anchor="middle" font-size="20">
+BAHÍA 500 kV
+</text>
+
+<line x1="70" y1="135" x2="730" y2="135"
+stroke="#8da0ad" stroke-width="8"/>
+
+<circle cx="115" cy="135" r="11" fill="#79c0ff"/>
+<circle cx="685" cy="135" r="11" fill="#79c0ff"/>
+
+<line x1="325" y1="135" x2="395" y2="92"
+stroke="#fff" stroke-width="9"/>
+<line x1="395" y1="92" x2="465" y2="135"
+stroke="#fff" stroke-width="9"/>
+
+<circle cx="325" cy="135" r="10" fill="#ddd"/>
+<circle cx="465" cy="135" r="10" fill="#ddd"/>
+
+<rect x="280" y="205" width="240" height="95"
+rx="10" fill="#202c36" stroke="#5e7484" stroke-width="2"/>
+
+<text x="400" y="235" fill="white"
+text-anchor="middle" font-size="17">MECANISMO</text>
+
+<text x="400" y="260" fill="#aaa"
+text-anchor="middle">Gabinete de mando</text>
+
+<text x="400" y="282" fill="#aaa"
+text-anchor="middle">Bobina · CC · auxiliares</text>
+
+<line x1="400" y1="135" x2="400" y2="205"
+stroke="#7f8f9b" stroke-width="4"/>
+</svg>
+</div>
+
+<div class="card">
+<h2>Estado del equipo</h2>
+
+<div class="status">
+<span>SF₆</span><b class="ok">NORMAL</b>
+</div>
+
+<div class="status">
+<span>Alimentación CC</span><b class="ok">NORMAL</b>
+</div>
+
+<div class="status">
+<span>Mecanismo</span><b class="ok">NORMAL</b>
+</div>
+
+<div class="status">
+<span>Bobina apertura</span><b class="warn">?</b>
+</div>
+
+<div class="status">
+<span>Interruptor</span><b class="bad">NO ABRE</b>
+</div>
+</div>
+
+<div class="card">
+<h2>Herramientas de diagnóstico</h2>
+
+<button onclick="medir('cc')">
+⚡ Medir tensión de mando CC
+</button>
+
+<button onclick="medir('bobina')">
+🔧 Medir tensión en bobina de apertura
+</button>
+
+<button onclick="medir('cont')">
+Ω Comprobar continuidad del circuito
+</button>
+
+<button onclick="medir('fusible')">
+🔍 Inspeccionar fusible de apertura
+</button>
+
+<button onclick="diagnosticar()">
+📋 Declarar diagnóstico
+</button>
+</div>
+
+<div class="card">
+<h2>Registro</h2>
+
+<div id="log">
+<b>Evento:</b> se recibe orden de APERTURA.
+El interruptor permanece CERRADO.
+</div>
+
+<div id="result"></div>
+</div>
+
+</main>
+
+<script>
+
+let h={
+cc:false,
+bobina:false,
+cont:false,
+fusible:false
+};
+
+function log(t){
+let e=document.getElementById("log");
+e.innerHTML+="<br>› "+t;
+}
+
+function medir(x){
+
+h[x]=true;
+
+if(x=="cc")
+log("Tensión de mando: 125 Vcc — NORMAL.");
+
+if(x=="bobina")
+log("Tensión en bobina de apertura: 0 Vcc con orden de apertura.");
+
+if(x=="cont")
+log("Continuidad del circuito de apertura: ABIERTA.");
+
+if(x=="fusible")
+log("Fusible de apertura: FUNDIDO.");
+}
+
+function diagnosticar(){
+
+let r=document.getElementById("result");
+
+if(h.fusible && h.cont && h.bobina){
+
+r.innerHTML=
+"<span class='ok'>✓ DIAGNÓSTICO CORRECTO: fusible de apertura fundido.</span>";
+
+}else{
+
+r.innerHTML=
+"<span class='bad'>✗ Diagnóstico incompleto. Continuá investigando.</span>";
+
+}
+}
+
+</script>
+
+</body>
+</html>
