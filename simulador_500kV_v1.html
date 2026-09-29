@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador 500 kV - V1</title>
+<style>
+body{margin:0;background:#10151b;color:#e8edf2;font-family:Arial,sans-serif}
+header{padding:18px 24px;background:#18212b;border-bottom:2px solid #2d3b48}
+h1{margin:0;font-size:22px} .sub{color:#9eabb7;margin-top:5px}
+main{display:grid;grid-template-columns:2fr 1fr;gap:16px;padding:18px;max-width:1200px;margin:auto}
+.panel{background:#18212b;border:1px solid #30404d;border-radius:10px;padding:16px}
+svg{width:100%;height:430px;background:#0d1116;border-radius:8px}
+button{background:#263746;color:#fff;border:1px solid #496073;border-radius:7px;padding:10px 12px;margin:5px 0;cursor:pointer;width:100%;text-align:left}
+button:hover{background:#31495b}
+.status{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2b3741}
+.bad{color:#ff7777}.ok{color:#7ee787}.warn{color:#ffd166}
+#log{height:150px;overflow:auto;background:#0d1116;padding:10px;border-radius:7px;font-size:13px;line-height:1.5}
+#result{font-weight:bold;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+<h1>SIMULADOR DE DIAGNÓSTICO — INTERRUPTOR 500 kV</h1>
+<div class="sub">Versión 1.0 · Entrenamiento de búsqueda de fallas</div>
+</header>
+
+<main>
+<section class="panel">
+<svg viewBox="0 0 800 430">
+<text x="400" y="35" fill="#b8c4ce" text-anchor="middle" font-size="18">Bahía 500 kV — Interruptor</text>
+<line x1="90" y1="170" x2="710" y2="170" stroke="#8da0ad" stroke-width="8"/>
+<circle cx="140" cy="170" r="12" fill="#79c0ff"/><circle cx="660" cy="170" r="12" fill="#79c0ff"/>
+<line x1="330" y1="170" x2="400" y2="125" stroke="#e8edf2" stroke-width="9"/>
+<line x1="400" y1="125" x2="470" y2="170" stroke="#e8edf2" stroke-width="9"/>
+<circle cx="330" cy="170" r="10" fill="#d6dee5"/><circle cx="470" cy="170" r="10" fill="#d6dee5"/>
+<rect x="300" y="245" width="200" height="95" rx="10" fill="#202c36" stroke="#5e7484" stroke-width="2"/>
+<text x="400" y="275" fill="#fff" text-anchor="middle" font-size="17">MECANISMO</text>
+<text x="400" y="300" fill="#aebbc5" text-anchor="middle">Gabinete de mando</text>
+<text x="400" y="325" fill="#aebbc5" text-anchor="middle">Bobina · CC · auxiliares</text>
+<line x1="400" y1="170" x2="400" y2="245" stroke="#7f8f9b" stroke-width="4"/>
+<text x="400" y="395" fill="#9eabb7" text-anchor="middle">Estado inicial: interruptor CERRADO · falla simulada</text>
+</svg>
+</section>
+
+<aside class="panel">
+<h2 style="margin-top:0">Estado</h2>
+<div class="status"><span>SF₆</span><span class="ok">NORMAL</span></div>
+<div class="status"><span>Alimentación CC</span><span class="ok">NORMAL</span></div>
+<div class="status"><span>Mecanismo</span><span class="ok">NORMAL</span></div>
+<div class="status"><span>Bobina apertura</span><span class="warn">DESCONOCIDA</span></div>
+<div class="status"><span>Interruptor</span><span class="bad">NO ABRE</span></div>
+
+<h2>Herramientas</h2>
+<button onclick="medir('cc')">⚡ Medir tensión de mando CC</button>
+<button onclick="medir('bobina')">🔧 Medir tensión en bobina de apertura</button>
+<button onclick="medir('cont')">Ω Comprobar continuidad del circuito de apertura</button>
+<button onclick="medir('fusible')">🔍 Inspeccionar fusible de apertura</button>
+<button onclick="diagnosticar()">📋 Declarar diagnóstico</button>
+
+<div id="log"><b>Registro:</b><br>Se recibe orden de APERTURA. El interruptor no cambia de estado.</div>
+<div id="result"></div>
+</aside>
+</main>
+
+<script>
+let hallazgos={cc:false,bobina:false,cont:false,fusible:false};
+function log(t){document.getElementById('log').innerHTML += '<br>› '+t; document.getElementById('log').scrollTop=9999}
+function medir(x){
+ if(x==='cc'){hallazgos.cc=true;log('Tensión de mando CC: 125 Vcc — NORMAL.')}
+ if(x==='bobina'){hallazgos.bobina=true;log('Tensión en bobina de apertura: 0 Vcc con orden de apertura.')}
+ if(x==='cont'){hallazgos.cont=true;log('Continuidad del circuito de apertura: ABIERTA.')}
+ if(x==='fusible'){hallazgos.fusible=true;log('Fusible de apertura: FUNDIDO.')}
+}
+function diagnosticar(){
+ if(hallazgos.fusible && hallazgos.cont && hallazgos.bobina){
+  document.getElementById('result').innerHTML='<span class="ok">DIAGNÓSTICO CORRECTO: circuito de apertura interrumpido por fusible fundido.</span>';
+ }else{
+  document.getElementById('result').innerHTML='<span class="bad">Diagnóstico incompleto. Seguí investigando el circuito de apertura.</span>';
+ }
+}
+</script>
+</body>
+</html>
